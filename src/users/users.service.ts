@@ -1,31 +1,30 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserDto } from 'src/dto/CreateUserdto';
-import { User } from './userSchema';
 import { Model } from 'mongoose';
+import { CreateUserDto } from './CreateUserdto';
+import { User } from './userSchema';
 import * as bcrypt from 'bcryptjs';
-import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UsersService {
-
-    constructor(@InjectModel(User.name) private readonly userModel: Model<User>,
-        @Inject(forwardRef(() => { AuthService })) private readonly authService: AuthService) { }
-
-    async createUser(createUserDto: CreateUserDto): Promise<User> {
-        const createdUser = new this.userModel(createUserDto)
-        createdUser.password = await bcrypt.hash(createdUser.password, 8)
-        const { access_token } = await this.authService.login(createdUser)
-        createdUser.token = access_token
-        return createdUser.save()
-    }
+    constructor(@InjectModel(User.name) private readonly userModel: Model<User>) { }
 
     async findUser(email: string): Promise<User | undefined> {
         const user = await this.userModel.findOne({ email: email })
         return user
     }
 
-    async getUser(id: number): Promise<User | undefined> {
+    async saveUser(user: User): Promise<User> {
+        return user.save()
+    }
+
+    async getNewUser(createUserDto: CreateUserDto) {
+        const user = new this.userModel(createUserDto)
+        user.password = await bcrypt.hash(user.password, 8)
+        return user
+    }
+    
+    async getUserById(id: number): Promise<User | undefined> {
         return await this.userModel.findOne({ _id: id })
     }
 
@@ -42,7 +41,7 @@ export class UsersService {
         return "No User Found or Empty Email Id";
     }
 
-    async deleteUser(id: number): Promise<string> {
+    async deleteUserById(id: number): Promise<string> {
         let userDto = await this.userModel.findById(id);
         if (userDto) {
             userDto.remove();
