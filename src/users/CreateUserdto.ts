@@ -1,4 +1,5 @@
-import { IsEmail, MinLength } from "class-validator"
+import { Exclude } from "class-transformer"
+import { IsEmail, IsNumber, MinLength } from "class-validator"
 
 export class CreateUserDto {
 
@@ -11,6 +12,8 @@ export class CreateUserDto {
     @MinLength(8)
     readonly password: string
     
+    @IsNumber()
     readonly age: number
+    
     readonly tokens: string
 }

@@ -1,5 +1,4 @@
-import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Body, Controller, Delete, forwardRef, Get, Inject, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { JWTAuthGuard } from './auth/guards/jwt-auth-guard';
 import { CreateUserDto } from './users/CreateUserdto';
@@ -15,21 +14,16 @@ export class AppController {
     }
 
     @UseGuards(JWTAuthGuard)
-    @Get("/:id")
-    getUser(@Param('id') id: number): Promise<User> {
-        return this.appService.getUser(id)
+    @Get("/me")
+    getUser(@Req() req): User {
+        const user: User = req.user
+        return user
     }
 
     @UseGuards(JWTAuthGuard)
     @Patch("/me")
-    updateUser(@Body() user: CreateUserDto): Promise<string> {
-       return this.appService.updateUser(user);
-    }
-
-    @UseGuards(JWTAuthGuard)
-    @Delete("/:id")
-    deleteUser(@Param('id') id: number): Promise<string> {
-      return this.appService.deleteUser(id)
+    updateUser(@Body() user: CreateUserDto): Promise<{ "message": string }> {
+        return this.appService.updateUser(user);
     }
 
 }

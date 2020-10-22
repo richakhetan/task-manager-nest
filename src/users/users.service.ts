@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from './CreateUserdto';
 import { User } from './userSchema';
 import * as bcrypt from 'bcryptjs';
+import { exception } from 'console';
 
 @Injectable()
 export class UsersService {
@@ -23,30 +24,31 @@ export class UsersService {
         user.password = await bcrypt.hash(user.password, 8)
         return user
     }
-    
+
     async getUserById(id: number): Promise<User | undefined> {
-        return await this.userModel.findOne({ _id: id })
+        let user = await this.userModel.findOne({ _id: id })
+        if (!user) {
+            throw new Error("User not found")
+        }
+        return user
     }
 
-    async updateUser(createUserDto: CreateUserDto): Promise<string> {
+    async updateUser(createUserDto: CreateUserDto): Promise<{ "message": string }> {
 
         let userDto = await this.userModel.findOne({ email: createUserDto.email })
-        console.log(userDto)
         if (userDto) {
             let keys = Object.keys(createUserDto)
             keys.forEach(key => userDto[key] = createUserDto[key])
-            return "User Updated"
+            this.saveUser(userDto)
+            return { "message": "User Updated" }
         }
 
-        return "No User Found or Empty Email Id";
+        return { "message": "No User Found or Empty Email Id" };
     }
 
-    async deleteUserById(id: number): Promise<string> {
-        let userDto = await this.userModel.findById(id);
-        if (userDto) {
-            userDto.remove();
-            return "User Deleted"
-        }
-        return "No User Found";
+    async deleteUserById(id: number): Promise<{ "message": string }> {
+        let userDto = await this.getUserById(id)
+        userDto.remove();
+        return { "message": "User Deleted" }
     }
 }
