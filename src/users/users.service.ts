@@ -12,7 +12,17 @@ export class UsersService {
 
     async findUser(email: string): Promise<User | undefined> {
         const user = await this.userModel.findOne({ email: email })
+        if (!user)
+            throw new Error("User not found")
         return user
+    }
+
+    async login(email: string, password: string): Promise<User> {
+        const user = await this.findUser(email)
+        if (!bcrypt.compare(password, user.password))
+            throw new Error("Username or Password incorrect")
+        return user
+
     }
 
     async saveUser(user: User): Promise<User> {

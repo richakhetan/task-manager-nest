@@ -24,6 +24,13 @@ export class AppService {
         return this.usersService.saveUser(createdUser)
     }
 
+    async login(email: string, password:string): Promise<User> {
+        const user = await this.usersService.login(email,password)
+        const { access_token } = await this.authService.login(user)
+        user.token = access_token
+        return this.usersService.saveUser(user)
+    }
+
     async findUser(email: string): Promise<User | undefined> {
         return this.usersService.findUser(email)
     }
