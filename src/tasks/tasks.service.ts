@@ -1,8 +1,7 @@
 import { Injectable, Type } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { throws } from 'assert';
-import { exception, timeEnd } from 'console';
 import { Model, Types } from 'mongoose';
+import { ConfigService } from 'src/config/config.service';
 import { CreateTaskDto } from './createTaskdto';
 import { Task } from './taskSchema';
 
@@ -14,7 +13,7 @@ export class TasksService {
     async findOne(id: Types.ObjectId, owner: Types.ObjectId) {
         let task = this.taskModel.findById({ _id: id })
         if (!task) {
-            throw new Error("Task not Found")
+            throw new Error(ConfigService.error().taskNotFound)
         }
         return task
     }
@@ -32,7 +31,7 @@ export class TasksService {
     async deleteTask(owner: Types.ObjectId, id: Types.ObjectId): Promise<{ "message": string }> {
         let task = this.findOne(id, owner)
         this.taskModel.deleteOne({ _id: id })
-        return { "message": "Task Deleted" }
+        return { "message": ConfigService.error().taskDeleted }
     }
 
     async updateTask(owner: Types.ObjectId, id: Types.ObjectId, createTaskDto: CreateTaskDto): Promise<Task | { "message": string }> {

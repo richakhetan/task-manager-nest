@@ -10,6 +10,7 @@ import { TasksService } from './tasks/tasks.service';
 import { CreateTaskDto } from './tasks/createTaskdto';
 import { Printer } from 'prettier';
 import { Task } from './tasks/taskSchema';
+import { ConfigService } from './config/config.service';
 
 @Injectable()
 export class AppService {

@@ -6,12 +6,15 @@ import { UsersModule } from './users/users.module';
 import { AppService } from './app.service';
 import { TasksModule } from './tasks/tasks.module';
 import { AppTaskController } from './appTask.controller';
+import { ConfigModule } from './config/config.module';
+import { ConfigService } from './config/config.service';
 
 @Module({
-  imports: [MongooseModule.forRoot('mongodb://127.0.0.1:27017/task-manager-api'),
+  imports: [MongooseModule.forRoot(ConfigService.constants().mongoConnectionString),
     AuthModule,
     UsersModule,
-    TasksModule],
+    TasksModule,
+    ConfigModule],
   controllers: [AppController, AppTaskController],
   providers: [AppService]
 })
